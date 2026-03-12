@@ -89,7 +89,7 @@ const FS: FileSystemNode = {
         'info.txt': {
           type: 'file',
           content: [
-            'Email    : ritinder@example.com',
+            'Email    : for.ritindersingh@gmail.com',
             'GitHub   : github.com/ritinder',
             'LinkedIn : linkedin.com/in/ritinder-singh',
             'Twitter  : @ritinder_dev',

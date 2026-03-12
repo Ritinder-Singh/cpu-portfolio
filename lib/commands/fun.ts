@@ -197,7 +197,7 @@ export const funCommands: CommandDef[] = [
           '  ║  Congratulations! You have root access to hiring   ║',
           '  ║  Ritinder Singh for your team.                     ║',
           '  ║                                                    ║',
-          '  ║  Next step: ritinder@example.com                   ║',
+          '  ║  Next step: for.ritindersingh@gmail.com                   ║',
           '  ║             linkedin.com/in/ritinder-singh          ║',
           '  ║                                                    ║',
           '  ╚════════════════════════════════════════════════════╝',

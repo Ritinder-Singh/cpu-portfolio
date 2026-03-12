@@ -34,7 +34,7 @@ export const portfolioCommands: CommandDef[] = [
           'Stack    : Python · FastAPI · Flask · Dart · Flutter',
           'DB       : PostgreSQL · Redis · MySQL · MongoDB',
           'DevOps   : Docker · GitHub Actions · Nginx · Linux',
-          'Email    : ritinder@example.com',
+          'Email    : for.ritindersingh@gmail.com',
           'GitHub   : github.com/ritinder',
           'LinkedIn : linkedin.com/in/ritinder-singh',
         ]);
@@ -174,7 +174,7 @@ export const portfolioCommands: CommandDef[] = [
         '  ║                  CONTACT INFO                       ║',
         '  ╚══════════════════════════════════════════════════════╝',
         '',
-        '  Email    : ritinder@example.com',
+        '  Email    : for.ritindersingh@gmail.com',
         '  GitHub   : github.com/ritinder',
         '  LinkedIn : linkedin.com/in/ritinder-singh',
         '  Twitter  : @ritinder_dev',
@@ -231,7 +231,7 @@ export const portfolioCommands: CommandDef[] = [
         '  Preference : Remote (open to hybrid)',
         '  Notice     : Available immediately',
         '',
-        '  Interested? → ritinder@example.com',
+        '  Interested? → for.ritindersingh@gmail.com',
         '',
       ].join('\n');
     },

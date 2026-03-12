@@ -100,7 +100,7 @@ export const utilityCommands: CommandDef[] = [
         github: 'https://github.com/ritinder',
         linkedin: 'https://linkedin.com/in/ritinder-singh',
         resume: '/resume.pdf',
-        email: 'mailto:ritinder@example.com',
+        email: 'mailto:for.ritindersingh@gmail.com',
         twitter: 'https://twitter.com/ritinder_dev',
       };
       if (!target) {
