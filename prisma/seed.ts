@@ -14,7 +14,7 @@ async function main() {
     { key: 'name', value: 'Ritinder Singh' },
     { key: 'tagline', value: 'Backend Dev · Flutter · Python' },
     { key: 'bio', value: 'A backend developer with a passion for building scalable APIs and cross-platform mobile applications. I work primarily with Python (FastAPI, Flask) and Flutter, and I love clean architecture and developer tooling.' },
-    { key: 'email', value: 'ritinder@example.com' },
+    { key: 'email', value: 'for.ritindersingh@gmail.com' },
     { key: 'github', value: 'https://github.com/ritinder' },
     { key: 'linkedin', value: 'https://linkedin.com/in/ritinder-singh' },
     { key: 'twitter', value: 'https://twitter.com/ritinder' },
