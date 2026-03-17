@@ -5,12 +5,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev      # Start dev server (Next.js)
-npm run build    # Production build
-npm run lint     # Run ESLint
+npm run dev           # Start dev server (Next.js)
+npm run build         # Production build
+npm run lint          # Run ESLint
+npm run db:generate   # Regenerate Prisma client after schema changes
+npm run db:migrate    # Apply migrations (production)
+npm run db:seed       # Seed the database
+npm run db:studio     # Open Prisma Studio GUI
 ```
 
 No test suite is configured.
+
+Docker (includes Postgres + auto-migrate + seed):
+```bash
+docker compose up
+```
 
 ## Architecture
 
@@ -60,3 +69,35 @@ The `useTerminal` hook (`components/terminal/useTerminal.ts`) handles terminal s
 
 ### Theming
 Six themes defined in `lib/themes.ts`: `dracula`, `tokyo`, `catppuccin`, `nord`, `green`, `amber`. The active theme is stored in `DesktopState.activeTheme` and also mirrored to `localStorage`. Theme objects are passed as props from `Desktop` down through `WindowManager` into each content window component.
+
+### Database & content (Prisma + PostgreSQL)
+Schema is in `prisma/schema.prisma`. Portfolio content is database-driven:
+
+| Model | Purpose |
+|---|---|
+| `Project` | Projects shown in the Projects window |
+| `BlogPost` | Posts shown in the Blog window |
+| `Skill` | Skills grouped by category |
+| `Achievement` | Achievements window entries |
+| `TerminalCommand` | Toggle commands on/off from admin |
+| `SiteConfig` | Key/value config (e.g. availability banner) |
+| `PageVisit` / `CommandUsage` | Analytics |
+
+`lib/db.ts` exports the singleton Prisma client.
+
+### Admin panel (`/admin`)
+A separate server-rendered CMS at `/admin` for editing all portfolio content. Protected by Google OAuth via NextAuth v5 (`lib/auth.ts`). Any authenticated user (any Google account that can sign in) is treated as admin — access is gated purely by `requireAdmin()` in `lib/admin-guard.ts`, which checks for an active session.
+
+- Admin layout (`app/admin/layout.tsx`) renders the sidebar only when a session exists; the login page shares the same layout but renders unauthenticated.
+- API routes under `app/api/` follow the same pattern: call `requireAdmin()` at the top and return early on failure.
+- Content API routes live at `app/api/content/{resource}/` and handle CRUD for each model.
+- Analytics API at `app/api/analytics/` (`/visit`, `/command`) — called fire-and-forget from `lib/analytics.ts` client helpers `trackVisit()` and `trackCommand()`.
+
+### Environment variables
+```
+DATABASE_URL
+NEXTAUTH_SECRET
+GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET
+RESEND_API_KEY
+```
