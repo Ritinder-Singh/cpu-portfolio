@@ -61,7 +61,7 @@ const S = {
     fontSize: 12,
     cursor: 'pointer',
   },
-  main: { flex: 1, overflowY: 'auto' as const, padding: 32 },
+  main: { flex: 1, overflowY: 'auto' as const, padding: 32, height: '100vh' },
 };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
