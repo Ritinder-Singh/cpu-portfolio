@@ -205,7 +205,7 @@ export function useTerminal(
       setInput('');
     } else if (e.key === 'Tab') {
       e.preventDefault();
-      const completed = completeInput(input, COMMAND_NAMES);
+      const completed = completeInput(input, COMMAND_NAMES, currentDir);
       setInput(completed);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();

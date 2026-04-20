@@ -1,15 +1,11 @@
 import { CommandDef, CommandResult } from './types';
 import { portfolioCommands } from './portfolio';
-import { filesystemCommands, makeLsHandler, makeCdHandler, makePwdHandler } from './filesystem';
-import { utilityCommands } from './utility';
-import { funCommands } from './fun';
+import { filesystemCommands, makeLsHandler, makeCdHandler, makePwdHandler, makeCatHandler } from './filesystem';
 import levenshtein from 'fast-levenshtein';
 
 export const COMMAND_REGISTRY: CommandDef[] = [
   ...portfolioCommands,
   ...filesystemCommands,
-  ...utilityCommands,
-  ...funCommands,
 ];
 
 export const COMMANDS_MAP: Record<string, CommandDef> = {};
@@ -17,23 +13,9 @@ for (const cmd of COMMAND_REGISTRY) {
   COMMANDS_MAP[cmd.name] = cmd;
 }
 
-// Multi-word command table
-const MULTI_WORD_COMMANDS: Record<string, (args: string[], currentDir: string) => CommandResult> = {
-  'sudo hire me': () => COMMANDS_MAP['sudo'].handler(['hire', 'me']),
-  'sudo rm -rf /': () => COMMANDS_MAP['sudo'].handler(['rm', '-rf', '/']),
-};
-
 export function processInput(input: string, currentDir: string): CommandResult {
   const trimmed = input.trim();
   if (!trimmed) return null;
-
-  // Check multi-word commands first
-  const lowerTrimmed = trimmed.toLowerCase();
-  for (const [key, handler] of Object.entries(MULTI_WORD_COMMANDS)) {
-    if (lowerTrimmed === key) {
-      return handler([], currentDir);
-    }
-  }
 
   const parts = trimmed.split(/\s+/);
   const name = parts[0].toLowerCase();
@@ -43,6 +25,7 @@ export function processInput(input: string, currentDir: string): CommandResult {
   if (name === 'ls') return makeLsHandler(currentDir)(args);
   if (name === 'cd') return makeCdHandler(currentDir)(args);
   if (name === 'pwd') return makePwdHandler(currentDir)();
+  if (name === 'cat') return makeCatHandler(currentDir)(args);
 
   // Handle help specially
   if (name === 'help') {
@@ -88,8 +71,6 @@ function buildHelp(): string {
   const categories: Record<string, CommandDef[]> = {
     Portfolio: [],
     Filesystem: [],
-    Utility: [],
-    Fun: [],
   };
 
   for (const cmd of COMMAND_REGISTRY) {

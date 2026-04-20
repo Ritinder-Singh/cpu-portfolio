@@ -112,10 +112,10 @@ const FS: FileSystemNode = {
 function resolvePath(currentDir: string, target: string): string {
   if (target === '~' || target === '') return '~';
   if (target === '..') {
-    const parts = currentDir.split('/').filter(Boolean);
-    if (parts.length <= 1) return '~';
+    if (currentDir === '~') return '~';
+    const parts = currentDir.replace('~/', '').split('/').filter(Boolean);
     parts.pop();
-    return '~/' + parts.slice(1).join('/');
+    return parts.length === 0 ? '~' : '~/' + parts.join('/');
   }
   if (target.startsWith('~/')) return target;
   if (currentDir === '~') return `~/${target}`;
@@ -163,7 +163,7 @@ export const filesystemCommands: CommandDef[] = [
     args: ['<file>'],
     handler: (args: string[]): CommandResult => {
       if (!args[0]) return 'cat: missing operand';
-      const path = args[0].startsWith('~/') ? args[0] : `~/${args[0]}`;
+      const path = resolvePath('~', args[0]);
       const node = getNode(path);
       if (!node) return `cat: ${args[0]}: No such file or directory`;
       if (node.type === 'dir') return `cat: ${args[0]}: Is a directory`;
@@ -274,4 +274,30 @@ export function makeCdHandler(currentDir: string) {
 
 export function makePwdHandler(currentDir: string) {
   return (): CommandResult => currentDir;
+}
+
+export function makeCatHandler(currentDir: string) {
+  return (args: string[]): CommandResult => {
+    if (!args[0]) return 'cat: missing operand';
+    const path = resolvePath(currentDir, args[0]);
+    const node = getNode(path);
+    if (!node) return `cat: ${args[0]}: No such file or directory`;
+    if (node.type === 'dir') return `cat: ${args[0]}: Is a directory`;
+    return node.content;
+  };
+}
+
+export function getFilesystemCompletions(partial: string, currentDir: string): string[] {
+  const lastSlash = partial.lastIndexOf('/');
+  const dirPart = lastSlash >= 0 ? partial.slice(0, lastSlash) : '';
+  const namePart = lastSlash >= 0 ? partial.slice(lastSlash + 1) : partial;
+
+  const lookIn = dirPart ? resolvePath(currentDir, dirPart) : currentDir;
+  const node = getNode(lookIn);
+  if (!node || node.type !== 'dir') return [];
+
+  const prefix = dirPart ? dirPart + '/' : '';
+  return Object.entries(node.children)
+    .filter(([name]) => name.toLowerCase().startsWith(namePart.toLowerCase()))
+    .map(([name, n]) => prefix + name + (n.type === 'dir' ? '/' : ''));
 }

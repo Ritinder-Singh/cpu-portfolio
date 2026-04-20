@@ -1,4 +1,7 @@
 import { CommandDef, CommandResult } from './types';
+import { ThemeName } from '../types';
+
+const THEME_NAMES: ThemeName[] = ['dracula', 'tokyo', 'catppuccin', 'nord', 'green', 'amber'];
 
 const BOX = {
   tl: '╔', tr: '╗', bl: '╚', br: '╝',
@@ -341,6 +344,101 @@ export const portfolioCommands: CommandDef[] = [
         '  Follow: github.com/ritinder for updates.',
         '',
       ].join('\n');
+    },
+  },
+  {
+    name: 'date',
+    category: 'Portfolio',
+    description: 'Display current date',
+    appMenuMode: 'terminal',
+    handler: (): CommandResult => {
+      return new Date().toDateString();
+    },
+  },
+  {
+    name: 'time',
+    category: 'Portfolio',
+    description: 'Display current time',
+    appMenuMode: 'terminal',
+    handler: (): CommandResult => {
+      return new Date().toLocaleTimeString();
+    },
+  },
+  {
+    name: 'open',
+    category: 'Portfolio',
+    description: 'Open URL shortcuts (github, linkedin, resume)',
+    appMenuMode: 'terminal',
+    args: ['<target>'],
+    handler: (args: string[]): CommandResult => {
+      const target = (args[0] || '').toLowerCase();
+      const urls: Record<string, string> = {
+        github: 'https://github.com/ritinder',
+        linkedin: 'https://linkedin.com/in/ritinder-singh',
+        resume: '/resume.pdf',
+        email: 'mailto:for.ritindersingh@gmail.com',
+        twitter: 'https://twitter.com/ritinder_dev',
+      };
+      if (!target) {
+        return [
+          'open: opens a URL or shortcut',
+          '',
+          'Shortcuts: ' + Object.keys(urls).join(', '),
+          '',
+          'Usage: open <shortcut>',
+        ].join('\n');
+      }
+      const url = urls[target];
+      if (!url) return `open: unknown target '${target}'. Try: ${Object.keys(urls).join(', ')}`;
+      if (typeof window !== 'undefined') {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+      return `Opening ${url} ...`;
+    },
+  },
+  {
+    name: 'clear',
+    category: 'Portfolio',
+    description: 'Clear terminal screen',
+    appMenuMode: 'terminal',
+    handler: (): CommandResult => {
+      return { type: 'CLEAR' };
+    },
+  },
+  {
+    name: 'history',
+    category: 'Portfolio',
+    description: 'Show command history',
+    appMenuMode: 'terminal',
+    handler: (): CommandResult => {
+      return '__HISTORY__';
+    },
+  },
+  {
+    name: 'theme',
+    category: 'Portfolio',
+    description: 'Change color theme. Usage: theme <name>',
+    appMenuMode: 'terminal',
+    args: ['<theme>'],
+    handler: (args: string[]): CommandResult => {
+      if (!args[0]) {
+        return [
+          'Available themes:',
+          '  dracula    — Purple dark theme',
+          '  tokyo      — Tokyo Night blue theme',
+          '  catppuccin — Catppuccin mauve theme',
+          '  nord       — Nord ice blue theme',
+          '  green      — Matrix green theme',
+          '  amber      — Amber retro theme',
+          '',
+          'Usage: theme <name>',
+        ].join('\n');
+      }
+      const name = args[0].toLowerCase();
+      if (!THEME_NAMES.includes(name as ThemeName)) {
+        return `theme: unknown theme '${name}'. Try: ${THEME_NAMES.join(', ')}`;
+      }
+      return { type: 'THEME', name };
     },
   },
 ];
