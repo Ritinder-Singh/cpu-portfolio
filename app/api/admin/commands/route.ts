@@ -9,7 +9,7 @@ export async function GET() {
 
   // Get DB overrides
   const rows = await db.terminalCommand.findMany();
-  const dbMap = Object.fromEntries(rows.map(r => [r.name, r.enabled]));
+  const dbMap = Object.fromEntries(rows.map((r: {name:string;enabled:boolean}) => [r.name, r.enabled]));
 
   // Merge with full registry so all commands appear
   const commands = COMMAND_REGISTRY

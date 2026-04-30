@@ -7,7 +7,7 @@ export async function GET() {
   if (denied) return denied;
 
   const rows = await db.siteConfig.findMany();
-  return NextResponse.json(Object.fromEntries(rows.map(r => [r.key, r.value])));
+  return NextResponse.json(Object.fromEntries(rows.map((r: {key:string;value:string}) => [r.key, r.value])));
 }
 
 export async function PUT(req: NextRequest) {

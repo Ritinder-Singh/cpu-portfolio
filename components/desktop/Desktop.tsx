@@ -14,7 +14,10 @@ export default function Desktop() {
   const { state } = useDesktop();
   const theme = THEMES[state.activeTheme];
   const isMobile = useMobile();
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
 
+  if (!mounted) return null;
   if (isMobile) return <MobileLayout />;
 
   return (
