@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Theme } from '@/lib/themes';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface SkillProject {
   name: string;
@@ -71,7 +72,29 @@ export default function SkillsWindow({ theme }: SkillsWindowProps) {
   const personalColor = theme.secondary;
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: theme.bg, fontFamily: 'Courier New, monospace', opacity: loaded ? 1 : 0, transition: 'opacity 0.2s' }}>
+    <>
+    {!loaded && (
+      <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12, backgroundColor: theme.bg, height: '100%' }}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          {[80, 100, 90, 70].map((w, i) => (
+            <Skeleton key={i} width={w} height={32} radius={4} color={theme.primary} />
+          ))}
+        </div>
+        {[1, 2, 3, 4, 5].map(i => (
+          <div key={i} style={{ padding: '12px 16px', border: `1px solid ${theme.border}`, borderRadius: 6, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+              <Skeleton width="30%" height={14} color={theme.primary} />
+              <Skeleton width={90} height={18} radius={20} color={theme.secondary} />
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <Skeleton width={70} height={20} radius={4} color={theme.dim} />
+              <Skeleton width={70} height={20} radius={4} color={theme.dim} />
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+    <div style={{ height: '100%', display: loaded ? 'flex' : 'none', flexDirection: 'column', backgroundColor: theme.bg, fontFamily: 'Courier New, monospace' }}>
 
       {/* Category tabs */}
       <div style={{ display: 'flex', borderBottom: `1px solid ${theme.border}`, backgroundColor: theme.bgDark, overflowX: 'auto', flexShrink: 0 }}>
@@ -172,5 +195,6 @@ export default function SkillsWindow({ theme }: SkillsWindowProps) {
         })}
       </div>
     </div>
+    </>
   );
 }

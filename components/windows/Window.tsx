@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect, useState } from 'react';
 import { WindowState } from '@/lib/types';
 import { Theme } from '@/lib/themes';
 import { useDesktop } from '@/context/DesktopContext';
@@ -32,14 +32,31 @@ const HANDLES: { dir: ResizeDir; cursor: string; style: React.CSSProperties }[] 
 export default function Window({ windowState, theme, children }: WindowProps) {
   const { closeWindow, minimizeWindow, maximizeWindow, focusWindow, dispatch } = useDesktop();
 
+  const { id, title, isMaximized, position, size, zIndex } = windowState;
+
+  const [phase, setPhase] = useState<'opening' | 'idle' | 'closing'>('opening');
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setPhase('idle'));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setPhase('closing');
+    setTimeout(() => closeWindow(id), 130);
+  }, [id, closeWindow]);
+
+  const handleMinimize = useCallback(() => {
+    setPhase('closing');
+    setTimeout(() => minimizeWindow(id), 130);
+  }, [id, minimizeWindow]);
+
   const isDragging   = useRef(false);
   const dragOffset   = useRef({ x: 0, y: 0 });
 
   const isResizing   = useRef(false);
   const resizeDir    = useRef<ResizeDir>('se');
   const resizeStart  = useRef({ mouseX: 0, mouseY: 0, winX: 0, winY: 0, winW: 0, winH: 0 });
-
-  const { id, title, isMaximized, position, size, zIndex } = windowState;
 
   const computedStyle: React.CSSProperties = isMaximized
     ? { position: 'fixed', left: 0, top: 0, width: '100vw', height: `calc(100vh - ${TASKBAR_HEIGHT}px)`, zIndex }
@@ -121,6 +138,10 @@ export default function Window({ windowState, theme, children }: WindowProps) {
         boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)',
         border: `1px solid ${theme.border}`,
         backgroundColor: theme.bg,
+        animation: phase === 'opening' ? 'window-open 0.15s ease-out forwards'
+                 : phase === 'closing' ? 'window-close 0.13s ease-in forwards'
+                 : undefined,
+        willChange: 'opacity, transform',
       }}
     >
       {/* Resize handles — hidden when maximized */}
@@ -142,8 +163,8 @@ export default function Window({ windowState, theme, children }: WindowProps) {
         windowId={id}
         isMaximized={isMaximized}
         onMouseDown={handleTitleBarMouseDown}
-        onClose={() => closeWindow(id)}
-        onMinimize={() => minimizeWindow(id)}
+        onClose={handleClose}
+        onMinimize={handleMinimize}
         onMaximize={() => maximizeWindow(id)}
         theme={theme}
       />

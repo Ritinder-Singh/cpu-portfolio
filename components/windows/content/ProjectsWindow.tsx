@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Theme } from '@/lib/themes';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface Project {
   id: string;
@@ -29,11 +30,37 @@ export default function ProjectsWindow({ theme }: ProjectsWindowProps) {
   }, []);
 
   return (
+    <>
+    {!loaded && (
+      <div style={{ padding: 24, backgroundColor: theme.bg, height: '100%' }}>
+        <Skeleton width="35%" height={14} color={theme.secondary} style={{ marginBottom: 20 }} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: 20, border: `1px solid ${theme.border}`, borderRadius: 8 }}>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <Skeleton width={28} height={28} radius={4} color={theme.primary} />
+                <Skeleton width="50%" height={16} color={theme.primary} />
+              </div>
+              <Skeleton height={12} color={theme.primary} />
+              <Skeleton height={12} color={theme.primary} />
+              <Skeleton width="60%" height={12} color={theme.primary} />
+              <div style={{ display: 'flex', gap: 6 }}>
+                <Skeleton width={60} height={20} radius={3} color={theme.secondary} />
+                <Skeleton width={60} height={20} radius={3} color={theme.secondary} />
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <Skeleton width={80} height={30} radius={5} color={theme.accent} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
     <div
       style={{
         height: '100%', overflowY: 'auto', backgroundColor: theme.bg,
         padding: '24px', fontFamily: 'Courier New, monospace',
-        opacity: loaded ? 1 : 0, transition: 'opacity 0.2s',
+        display: loaded ? undefined : 'none',
       }}
     >
       <h2 style={{ color: theme.secondary, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 20px', borderBottom: `1px solid ${theme.border}`, paddingBottom: 8 }}>
@@ -87,5 +114,6 @@ export default function ProjectsWindow({ theme }: ProjectsWindowProps) {
         ))}
       </div>
     </div>
+    </>
   );
 }

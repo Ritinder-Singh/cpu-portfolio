@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Theme } from '@/lib/themes';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface AboutWindowProps {
   theme: Theme;
@@ -58,6 +59,29 @@ export default function AboutWindow({ theme }: AboutWindowProps) {
   const isUrl = avatar.startsWith('http');
 
   return (
+    <>
+    {!loaded && (
+      <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20, backgroundColor: theme.bg, height: '100%' }}>
+        <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+          <Skeleton width={80} height={80} radius={40} color={theme.primary} />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <Skeleton width="55%" height={22} color={theme.primary} />
+            <Skeleton width="35%" height={14} color={theme.secondary} />
+          </div>
+        </div>
+        <Skeleton width="30%" height={13} color={theme.secondary} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Skeleton height={13} color={theme.primary} />
+          <Skeleton height={13} color={theme.primary} />
+          <Skeleton width="70%" height={13} color={theme.primary} />
+        </div>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <Skeleton width={90} height={36} radius={6} color={theme.primary} />
+          <Skeleton width={90} height={36} radius={6} color={theme.primary} />
+          <Skeleton width={90} height={36} radius={6} color={theme.primary} />
+        </div>
+      </div>
+    )}
     <div
       style={{
         height: '100%',
@@ -66,8 +90,7 @@ export default function AboutWindow({ theme }: AboutWindowProps) {
         color: theme.primary,
         fontFamily: 'Courier New, monospace',
         padding: '24px',
-        opacity: loaded ? 1 : 0,
-        transition: 'opacity 0.2s',
+        display: loaded ? undefined : 'none',
       }}
     >
       {/* Header */}
@@ -138,5 +161,6 @@ export default function AboutWindow({ theme }: AboutWindowProps) {
         </section>
       )}
     </div>
+    </>
   );
 }
