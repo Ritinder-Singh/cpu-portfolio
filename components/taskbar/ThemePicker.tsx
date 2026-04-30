@@ -18,7 +18,7 @@ const THEME_DOTS: { name: ThemeName; color: string; label: string }[] = [
 ];
 
 export default function ThemePicker({ theme }: ThemePickerProps) {
-  const { dispatch, executeInTerminal, state } = useDesktop();
+  const { dispatch, state } = useDesktop();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -34,7 +34,6 @@ export default function ThemePicker({ theme }: ThemePickerProps) {
 
   const handleTheme = (name: ThemeName) => {
     dispatch({ type: 'SET_THEME', payload: { theme: name } });
-    executeInTerminal(`theme ${name}`);
     setOpen(false);
   };
 

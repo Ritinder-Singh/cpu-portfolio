@@ -7,10 +7,15 @@ import Wallpaper from './Wallpaper';
 import DesktopIconGrid from './DesktopIconGrid';
 import WindowManager from '../windows/WindowManager';
 import Taskbar from '../taskbar/Taskbar';
+import MobileLayout from '@/components/mobile/MobileLayout';
+import { useMobile } from '@/hooks/useMobile';
 
 export default function Desktop() {
   const { state } = useDesktop();
   const theme = THEMES[state.activeTheme];
+  const isMobile = useMobile();
+
+  if (isMobile) return <MobileLayout />;
 
   return (
     <div

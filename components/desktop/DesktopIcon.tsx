@@ -36,11 +36,15 @@ export default function DesktopIcon({ icon, label, onDoubleClick, theme }: Deskt
         padding: '6px 8px',
         borderRadius: 6,
         cursor: 'pointer',
-        backgroundColor: selected ? `${theme.accent}44` : 'transparent',
-        border: selected ? `1px solid ${theme.accent}88` : '1px solid transparent',
+        backgroundColor: selected ? `${theme.accent}66` : `${theme.bgBar}cc`,
+        border: selected ? `1px solid ${theme.primary}88` : `1px solid ${theme.border}`,
         userSelect: 'none',
         width: 72,
         transition: 'background-color 0.1s',
+        backdropFilter: 'blur(4px)',
+        boxShadow: selected
+          ? `0 0 10px ${theme.primary}44`
+          : '0 2px 6px rgba(0,0,0,0.5)',
       }}
     >
       <div
