@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useDesktop } from '@/context/DesktopContext';
 import { THEMES } from '@/lib/themes';
-import { trackVisit } from '@/lib/analytics';
 import Wallpaper from './Wallpaper';
 import DesktopIconGrid from './DesktopIconGrid';
 import WindowManager from '../windows/WindowManager';
@@ -12,8 +11,6 @@ import Taskbar from '../taskbar/Taskbar';
 export default function Desktop() {
   const { state } = useDesktop();
   const theme = THEMES[state.activeTheme];
-
-  useEffect(() => { trackVisit(); }, []);
 
   return (
     <div
