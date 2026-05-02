@@ -21,28 +21,47 @@ function box(title: string, lines: string[]): string {
   return [top, titleLine, mid, ...bodyLines, bot].join('\n');
 }
 
+function stripProtocol(url: string): string {
+  return url.replace(/^https?:\/\//, '');
+}
+
+async function fetchConfig(): Promise<Record<string, string>> {
+  try {
+    const res = await fetch('/api/content/config');
+    if (!res.ok) return {};
+    return res.json();
+  } catch {
+    return {};
+  }
+}
+
 export const portfolioCommands: CommandDef[] = [
   {
     name: 'whoami',
     category: 'Portfolio',
     description: 'Display current user info. Use -v for verbose.',
     appMenuMode: 'terminal',
-    handler: (args: string[]): CommandResult => {
+    handler: async (args: string[]): Promise<string> => {
+      const cfg = await fetchConfig();
+      const name = cfg.name || 'Ritinder Singh';
+      const tagline = cfg.tagline || '';
+      const location = cfg.location || '';
+      const email = cfg.email || '';
+      const github = cfg.github ? stripProtocol(cfg.github) : '';
+      const linkedin = cfg.linkedin ? stripProtocol(cfg.linkedin) : '';
+
       if (args.includes('-v')) {
         return box('USER PROFILE', [
-          'Name     : Ritinder Singh',
-          'Handle   : ritinder',
-          'Role     : Backend Developer · Flutter · Python',
-          'Location : India',
-          'Stack    : Python · FastAPI · Flask · Dart · Flutter',
-          'DB       : PostgreSQL · Redis · MySQL · MongoDB',
-          'DevOps   : Docker · GitHub Actions · Nginx · Linux',
-          'Email    : for.ritindersingh@gmail.com',
-          'GitHub   : github.com/ritinder',
-          'LinkedIn : linkedin.com/in/ritinder-singh',
+          `Name     : ${name}`,
+          `Handle   : ${name.split(' ')[0].toLowerCase()}`,
+          `Role     : ${tagline}`,
+          `Location : ${location}`,
+          `Email    : ${email}`,
+          `GitHub   : ${github}`,
+          `LinkedIn : ${linkedin}`,
         ]);
       }
-      return 'ritinder';
+      return name.split(' ')[0].toLowerCase();
     },
   },
   {
@@ -51,30 +70,28 @@ export const portfolioCommands: CommandDef[] = [
     description: 'Learn about Ritinder Singh',
     appMenuMode: 'gui',
     guiWindowType: 'about',
-    handler: (): CommandResult => {
+    handler: async (): Promise<string> => {
+      const cfg = await fetchConfig();
+      const name = cfg.name || 'Ritinder Singh';
+      const tagline = cfg.tagline || '';
+      const location = cfg.location || '';
+      const bio = cfg.bio || '';
+
+      const bioLines = bio.match(/.{1,52}/g) || [bio];
+
       return [
         '',
-        '  ╔══════════════════════════════════════════════════════╗',
-        '  ║              ABOUT RITINDER SINGH                   ║',
-        '  ╚══════════════════════════════════════════════════════╝',
+        `  ╔══════════════════════════════════════════════════════╗`,
+        `  ║              ABOUT ${name.toUpperCase().padEnd(34)}║`,
+        `  ╚══════════════════════════════════════════════════════╝`,
         '',
-        '  Name     : Ritinder Singh',
-        '  Role     : Backend Developer · Flutter Developer',
-        '  Location : India 🇮🇳',
+        `  Name     : ${name}`,
+        `  Role     : ${tagline}`,
+        `  Location : ${location}`,
         '',
         '  Bio:',
         '  ─────────────────────────────────────────────────────',
-        '  I\'m a passionate backend developer who loves building',
-        '  scalable, production-ready systems using Python.',
-        '  I specialize in FastAPI and Flask microservices,',
-        '  PostgreSQL database design, and async task queues.',
-        '',
-        '  On the mobile side, I craft beautiful cross-platform',
-        '  apps with Flutter — from smooth animations to complex',
-        '  state management with Bloc and Firebase integration.',
-        '',
-        '  I believe in clean code, solid architecture, and',
-        '  shipping things that actually work.',
+        ...bioLines.map(l => `  ${l}`),
         '  ─────────────────────────────────────────────────────',
         '',
         '  Type "skills" to see my tech stack.',
@@ -89,35 +106,37 @@ export const portfolioCommands: CommandDef[] = [
     description: 'View technical skills and stack',
     appMenuMode: 'gui',
     guiWindowType: 'skills',
-    handler: (): CommandResult => {
-      return [
-        '',
-        '  ╔══════════════════════════════════════════════════════╗',
-        '  ║                  TECHNICAL SKILLS                   ║',
-        '  ╚══════════════════════════════════════════════════════╝',
-        '',
-        '  Languages',
-        '  ─────────',
-        '  Python · Dart · JavaScript · SQL · Bash',
-        '',
-        '  Backend',
-        '  ───────',
-        '  FastAPI · Flask · Django REST · PostgreSQL',
-        '  Redis · Celery · Docker · Kubernetes',
-        '',
-        '  Mobile',
-        '  ──────',
-        '  Flutter · Firebase · Bloc · Provider · REST APIs',
-        '',
-        '  DevOps',
-        '  ──────',
-        '  Docker · GitHub Actions · Nginx · Linux · AWS basics',
-        '',
-        '  Databases',
-        '  ─────────',
-        '  PostgreSQL · MySQL · SQLite · Redis · MongoDB',
-        '',
-      ].join('\n');
+    handler: async (): Promise<string> => {
+      try {
+        const res = await fetch('/api/content/skills');
+        if (!res.ok) throw new Error();
+        const skills: { category: string; name: string }[] = await res.json();
+
+        const grouped: Record<string, string[]> = {};
+        for (const skill of skills) {
+          if (!grouped[skill.category]) grouped[skill.category] = [];
+          grouped[skill.category].push(skill.name);
+        }
+
+        const lines: string[] = [
+          '',
+          '  ╔══════════════════════════════════════════════════════╗',
+          '  ║                  TECHNICAL SKILLS                   ║',
+          '  ╚══════════════════════════════════════════════════════╝',
+          '',
+        ];
+
+        for (const [category, names] of Object.entries(grouped)) {
+          lines.push(`  ${category}`);
+          lines.push(`  ${'─'.repeat(category.length)}`);
+          lines.push(`  ${names.join(' · ')}`);
+          lines.push('');
+        }
+
+        return lines.join('\n');
+      } catch {
+        return 'Error loading skills. Please try again.';
+      }
     },
   },
   {
@@ -126,42 +145,35 @@ export const portfolioCommands: CommandDef[] = [
     description: 'View portfolio projects',
     appMenuMode: 'gui',
     guiWindowType: 'projects',
-    handler: (): CommandResult => {
-      return [
-        '',
-        '  ╔══════════════════════════════════════════════════════╗',
-        '  ║                 PORTFOLIO PROJECTS                  ║',
-        '  ╚══════════════════════════════════════════════════════╝',
-        '',
-        '  [1] QuickMart Backend',
-        '  ─────────────────────',
-        '  FastAPI + PostgreSQL e-commerce backend with JWT auth,',
-        '  Redis caching, and Celery async tasks.',
-        '  Tech: FastAPI · PostgreSQL · Redis · Celery · Docker',
-        '  → github.com/ritinder/quickmart-api',
-        '',
-        '  [2] TaskFlow',
-        '  ─────────────',
-        '  Flutter productivity app with offline sync, Firebase',
-        '  backend, and Bloc state management.',
-        '  Tech: Flutter · Firebase · Bloc · Dart',
-        '  → github.com/ritinder/taskflow',
-        '',
-        '  [3] DevMetrics',
-        '  ───────────────',
-        '  Real-time developer dashboard with WebSocket streaming',
-        '  and PostgreSQL analytics engine.',
-        '  Tech: FastAPI · WebSocket · PostgreSQL · React',
-        '  → github.com/ritinder/devmetrics',
-        '',
-        '  [4] PyBot',
-        '  ──────────',
-        '  Telegram bot framework in Python with plugin system',
-        '  and Redis session storage.',
-        '  Tech: Python · Redis · Telegram API · asyncio',
-        '  → github.com/ritinder/pybot',
-        '',
-      ].join('\n');
+    handler: async (): Promise<string> => {
+      try {
+        const res = await fetch('/api/content/projects');
+        if (!res.ok) throw new Error();
+        const projects: { title: string; description: string; techStack: string[]; githubUrl?: string; icon?: string }[] = await res.json();
+
+        if (projects.length === 0) return 'No projects found.';
+
+        const lines: string[] = [
+          '',
+          '  ╔══════════════════════════════════════════════════════╗',
+          '  ║                 PORTFOLIO PROJECTS                  ║',
+          '  ╚══════════════════════════════════════════════════════╝',
+          '',
+        ];
+
+        projects.forEach((p, i) => {
+          lines.push(`  [${i + 1}] ${p.title}`);
+          lines.push(`  ${'─'.repeat(p.title.length + 4)}`);
+          lines.push(`  ${p.description}`);
+          if (p.techStack?.length) lines.push(`  Tech: ${p.techStack.join(' · ')}`);
+          if (p.githubUrl) lines.push(`  → ${stripProtocol(p.githubUrl)}`);
+          lines.push('');
+        });
+
+        return lines.join('\n');
+      } catch {
+        return 'Error loading projects. Please try again.';
+      }
     },
   },
   {
@@ -170,22 +182,28 @@ export const portfolioCommands: CommandDef[] = [
     description: 'Get contact information',
     appMenuMode: 'gui',
     guiWindowType: 'contact',
-    handler: (): CommandResult => {
+    handler: async (): Promise<string> => {
+      const cfg = await fetchConfig();
+      const email = cfg.email || '';
+      const github = cfg.github ? stripProtocol(cfg.github) : '';
+      const linkedin = cfg.linkedin ? stripProtocol(cfg.linkedin) : '';
+      const twitter = cfg.twitter ? stripProtocol(cfg.twitter) : '';
+
       return [
         '',
         '  ╔══════════════════════════════════════════════════════╗',
         '  ║                  CONTACT INFO                       ║',
         '  ╚══════════════════════════════════════════════════════╝',
         '',
-        '  Email    : for.ritindersingh@gmail.com',
-        '  GitHub   : github.com/ritinder',
-        '  LinkedIn : linkedin.com/in/ritinder-singh',
-        '  Twitter  : @ritinder_dev',
+        `  Email    : ${email}`,
+        `  GitHub   : ${github}`,
+        `  LinkedIn : ${linkedin}`,
+        twitter ? `  Twitter  : ${twitter}` : '',
         '',
         '  I\'m always open to interesting projects and',
         '  conversations. Don\'t hesitate to reach out!',
         '',
-      ].join('\n');
+      ].filter(l => l !== undefined).join('\n');
     },
   },
   {
@@ -194,28 +212,33 @@ export const portfolioCommands: CommandDef[] = [
     description: 'View achievements and certifications',
     appMenuMode: 'gui',
     guiWindowType: 'achievements',
-    handler: (): CommandResult => {
-      return [
-        '',
-        '  ╔══════════════════════════════════════════════════════╗',
-        '  ║                   ACHIEVEMENTS                      ║',
-        '  ╚══════════════════════════════════════════════════════╝',
-        '',
-        '  🏆 Built & deployed 4+ production APIs serving 1000+ users',
-        '     Year: 2024',
-        '',
-        '  🥇 Won 2nd place at regional hackathon (24-hour sprint)',
-        '     Project: Real-time collaborative code editor',
-        '     Year: 2023',
-        '',
-        '  📜 Certified: Docker & Kubernetes Fundamentals',
-        '     Issued by: KodeKloud · 2024',
-        '',
-        '  ⭐ 100+ GitHub stars across open source projects',
-        '     Community contributor to FastAPI ecosystem',
-        '     Year: 2024',
-        '',
-      ].join('\n');
+    handler: async (): Promise<string> => {
+      try {
+        const res = await fetch('/api/content/achievements');
+        if (!res.ok) throw new Error();
+        const achievements: { icon: string; title: string; date: string; description: string }[] = await res.json();
+
+        if (achievements.length === 0) return 'No achievements found.';
+
+        const lines: string[] = [
+          '',
+          '  ╔══════════════════════════════════════════════════════╗',
+          '  ║                   ACHIEVEMENTS                      ║',
+          '  ╚══════════════════════════════════════════════════════╝',
+          '',
+        ];
+
+        for (const a of achievements) {
+          lines.push(`  ${a.icon} ${a.title}`);
+          lines.push(`     ${a.description}`);
+          lines.push(`     Year: ${a.date}`);
+          lines.push('');
+        }
+
+        return lines.join('\n');
+      } catch {
+        return 'Error loading achievements. Please try again.';
+      }
     },
   },
   {
@@ -223,20 +246,29 @@ export const portfolioCommands: CommandDef[] = [
     category: 'Portfolio',
     description: 'Check current availability for work',
     appMenuMode: 'terminal',
-    handler: (): CommandResult => {
+    handler: async (): Promise<string> => {
+      const cfg = await fetchConfig();
+      const avail = cfg.availability ? JSON.parse(cfg.availability) : null;
+
+      const status = avail?.status || 'OPEN TO OPPORTUNITIES';
+      const looking = avail?.looking || '';
+      const preference = avail?.preference || '';
+      const notice = avail?.notice || '';
+      const email = cfg.email || '';
+
       return [
         '',
-        '  ┌─────────────────────────────────────────────────┐',
-        '  │  STATUS: OPEN TO OPPORTUNITIES                  │',
-        '  └─────────────────────────────────────────────────┘',
+        `  ┌─────────────────────────────────────────────────┐`,
+        `  │  STATUS: ${status.padEnd(39)}│`,
+        `  └─────────────────────────────────────────────────┘`,
         '',
-        '  Looking for: Backend / Flutter roles',
-        '  Preference : Remote (open to hybrid)',
-        '  Notice     : Available immediately',
+        looking ? `  Looking for: ${looking}` : '',
+        preference ? `  Preference : ${preference}` : '',
+        notice ? `  Notice     : ${notice}` : '',
         '',
-        '  Interested? → for.ritindersingh@gmail.com',
+        email ? `  Interested? → ${email}` : '',
         '',
-      ].join('\n');
+      ].filter(l => l !== undefined).join('\n');
     },
   },
   {
@@ -244,21 +276,22 @@ export const portfolioCommands: CommandDef[] = [
     category: 'Portfolio',
     description: 'What Ritinder is currently working on',
     appMenuMode: 'terminal',
-    handler: (): CommandResult => {
+    handler: async (): Promise<string> => {
+      const cfg = await fetchConfig();
+      const items: string[] = cfg.nowItems ? JSON.parse(cfg.nowItems) : [];
+      const updated = cfg.nowUpdated || '';
+
       return [
         '',
         '  ╔══════════════════════════════════════════════╗',
         '  ║            CURRENTLY WORKING ON              ║',
         '  ╚══════════════════════════════════════════════╝',
         '',
-        '  → Learning Rust (systems programming & WebAssembly)',
-        '  → Building QuickMart v2 with microservices arch',
-        '  → Contributing to FastAPI open source ecosystem',
-        '  → Writing a blog about backend engineering patterns',
+        ...items.map(item => `  → ${item}`),
         '',
-        '  Last updated: March 2025',
+        updated ? `  Last updated: ${updated}` : '',
         '',
-      ].join('\n');
+      ].filter(l => l !== undefined).join('\n');
     },
   },
   {
@@ -266,28 +299,34 @@ export const portfolioCommands: CommandDef[] = [
     category: 'Portfolio',
     description: 'Read what people say about Ritinder',
     appMenuMode: 'terminal',
-    handler: (): CommandResult => {
-      return [
+    handler: async (): Promise<string> => {
+      const cfg = await fetchConfig();
+      const testimonials: { quote: string; author: string; role: string }[] = cfg.testimonials
+        ? JSON.parse(cfg.testimonials)
+        : [];
+
+      if (testimonials.length === 0) return 'No testimonials found.';
+
+      const lines: string[] = [
         '',
         '  ╔══════════════════════════════════════════════════════╗',
         '  ║                   TESTIMONIALS                      ║',
         '  ╚══════════════════════════════════════════════════════╝',
         '',
-        '  "Ritinder delivered a rock-solid FastAPI backend for',
-        '   our startup. Clean code, great documentation, and',
-        '   shipped on time. Highly recommended."',
-        '                            — Arjun M., Startup Founder',
-        '',
-        '  "The Flutter app he built for us is buttery smooth.',
-        '   Attention to detail is exceptional — animations,',
-        '   offline sync, everything just works."',
-        '                            — Priya K., Product Manager',
-        '',
-        '  "Great collaborator. He takes ownership of problems',
-        '   and always thinks about scalability first."',
-        '                            — Dev Team Lead, TechCorp',
-        '',
-      ].join('\n');
+      ];
+
+      for (const t of testimonials) {
+        const quoteLines = t.quote.match(/.{1,52}/g) || [t.quote];
+        lines.push(`  "${quoteLines[0]}`);
+        for (let i = 1; i < quoteLines.length; i++) {
+          lines.push(`   ${quoteLines[i]}`);
+        }
+        lines.push(`  "${''}`);
+        lines.push(`                            — ${t.author}, ${t.role}`);
+        lines.push('');
+      }
+
+      return lines.join('\n');
     },
   },
   {
@@ -296,23 +335,23 @@ export const portfolioCommands: CommandDef[] = [
     description: 'View or download resume',
     appMenuMode: 'gui',
     guiWindowType: 'resume',
-    handler: (): CommandResult => {
+    handler: async (): Promise<string> => {
+      const cfg = await fetchConfig();
+      const resumeUrl = cfg.resumeUrl || '/resume.pdf';
+      const tagline = cfg.tagline || '';
+
       return [
         '',
         '  ┌─────────────────────────────────────────────────┐',
-        '  │  RESUME — Ritinder Singh                        │',
+        `  │  RESUME — ${(cfg.name || 'Ritinder Singh').padEnd(37)}│`,
         '  └─────────────────────────────────────────────────┘',
         '',
-        '  Download: /resume.pdf',
+        `  Download: ${resumeUrl}`,
         '  Or open the Resume window for the full view.',
         '',
-        '  Quick summary:',
-        '  • 3+ years backend development (Python ecosystem)',
-        '  • FastAPI, Flask, Django REST Framework',
-        '  • Flutter mobile development (iOS + Android)',
-        '  • PostgreSQL, Redis, Docker, CI/CD pipelines',
+        tagline ? `  ${tagline}` : '',
         '',
-      ].join('\n');
+      ].filter(l => l !== undefined).join('\n');
     },
   },
   {
@@ -321,29 +360,35 @@ export const portfolioCommands: CommandDef[] = [
     description: 'Read blog posts',
     appMenuMode: 'gui',
     guiWindowType: 'blog',
-    handler: (): CommandResult => {
-      return [
-        '',
-        '  ╔══════════════════════════════════════════════════════╗',
-        '  ║                    BLOG POSTS                       ║',
-        '  ╚══════════════════════════════════════════════════════╝',
-        '',
-        '  [1] "FastAPI vs Flask: When to use which?"',
-        '      A practical guide for backend developers.',
-        '      → Coming soon...',
-        '',
-        '  [2] "Flutter Bloc: The definitive guide"',
-        '      State management patterns that scale.',
-        '      → Coming soon...',
-        '',
-        '  [3] "Docker in Production: Lessons learned"',
-        '      Real-world tips from shipping containers.',
-        '      → Coming soon...',
-        '',
-        '  Blog is under construction. Stay tuned!',
-        '  Follow: github.com/ritinder for updates.',
-        '',
-      ].join('\n');
+    handler: async (): Promise<string> => {
+      try {
+        const res = await fetch('/api/content/blog');
+        if (!res.ok) throw new Error();
+        const posts: { title: string; excerpt?: string; publishedAt?: string }[] = await res.json();
+
+        const lines: string[] = [
+          '',
+          '  ╔══════════════════════════════════════════════════════╗',
+          '  ║                    BLOG POSTS                       ║',
+          '  ╚══════════════════════════════════════════════════════╝',
+          '',
+        ];
+
+        if (posts.length === 0) {
+          lines.push('  No posts published yet. Stay tuned!');
+          lines.push('');
+        } else {
+          posts.forEach((p, i) => {
+            lines.push(`  [${i + 1}] "${p.title}"`);
+            if (p.excerpt) lines.push(`      ${p.excerpt}`);
+            lines.push('');
+          });
+        }
+
+        return lines.join('\n');
+      } catch {
+        return 'Error loading blog posts. Please try again.';
+      }
     },
   },
   {
@@ -370,26 +415,31 @@ export const portfolioCommands: CommandDef[] = [
     description: 'Open URL shortcuts (github, linkedin, resume)',
     appMenuMode: 'terminal',
     args: ['<target>'],
-    handler: (args: string[]): CommandResult => {
-      const target = (args[0] || '').toLowerCase();
+    handler: async (args: string[]): Promise<string> => {
+      const cfg = await fetchConfig();
       const urls: Record<string, string> = {
-        github: 'https://github.com/ritinder',
-        linkedin: 'https://linkedin.com/in/ritinder-singh',
-        resume: '/resume.pdf',
-        email: 'mailto:for.ritindersingh@gmail.com',
-        twitter: 'https://twitter.com/ritinder_dev',
+        github: cfg.github || '',
+        linkedin: cfg.linkedin || '',
+        resume: cfg.resumeUrl || '/resume.pdf',
+        email: cfg.email ? `mailto:${cfg.email}` : '',
+        twitter: cfg.twitter || '',
       };
+
+      const validUrls = Object.fromEntries(Object.entries(urls).filter(([, v]) => v));
+      const target = (args[0] || '').toLowerCase();
+
       if (!target) {
         return [
           'open: opens a URL or shortcut',
           '',
-          'Shortcuts: ' + Object.keys(urls).join(', '),
+          'Shortcuts: ' + Object.keys(validUrls).join(', '),
           '',
           'Usage: open <shortcut>',
         ].join('\n');
       }
-      const url = urls[target];
-      if (!url) return `open: unknown target '${target}'. Try: ${Object.keys(urls).join(', ')}`;
+
+      const url = validUrls[target];
+      if (!url) return `open: unknown target '${target}'. Try: ${Object.keys(validUrls).join(', ')}`;
       if (typeof window !== 'undefined') {
         window.open(url, '_blank', 'noopener,noreferrer');
       }
