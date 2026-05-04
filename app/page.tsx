@@ -1,3 +1,5 @@
+import ContactButton from '@/components/maintenance/ContactButton';
+
 export default function Page() {
   return (
     <>
@@ -121,6 +123,7 @@ export default function Page() {
                 <span className="ps1">~$</span>
                 <span className="cursor" />
               </div>
+              <ContactButton />
             </div>
           </div>
           <p className="footer">ritinder-singh.com</p>
