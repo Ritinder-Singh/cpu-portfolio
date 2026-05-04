@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import ContactButton from '@/components/maintenance/ContactButton';
 
 export default function Page() {
@@ -89,6 +90,19 @@ export default function Page() {
 
         @keyframes fadein { to { opacity: 1; } }
         @keyframes blink  { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes skeleton-pulse {
+          0%, 100% { opacity: 0.4; }
+          50%       { opacity: 0.15; }
+        }
+
+        .btn-skeleton {
+          margin-top: 24px;
+          width: 130px;
+          height: 36px;
+          border-radius: 5px;
+          background: #bd93f9;
+          animation: skeleton-pulse 1.5s ease-in-out infinite;
+        }
 
         .footer {
           color: #44475a;
@@ -123,7 +137,9 @@ export default function Page() {
                 <span className="ps1">~$</span>
                 <span className="cursor" />
               </div>
-              <ContactButton />
+              <Suspense fallback={<div className="btn-skeleton" />}>
+                <ContactButton />
+              </Suspense>
             </div>
           </div>
           <p className="footer">ritinder-singh.com</p>

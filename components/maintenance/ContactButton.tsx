@@ -6,10 +6,17 @@ type Status = 'idle' | 'sending' | 'sent' | 'error';
 
 export default function ContactButton() {
   const [open, setOpen] = useState(false);
+  const [ready, setReady] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<Status>('idle');
+
+  const openModal = () => {
+    setOpen(true);
+    setReady(false);
+    setTimeout(() => setReady(true), 600);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +41,12 @@ export default function ContactButton() {
     }
   };
 
+  const skel: React.CSSProperties = {
+    background: '#44475a',
+    borderRadius: 4,
+    animation: 'skeleton-pulse 1.5s ease-in-out infinite',
+  };
+
   const input: React.CSSProperties = {
     width: '100%', boxSizing: 'border-box',
     background: '#383a59', border: '1px solid #44475a',
@@ -44,7 +57,7 @@ export default function ContactButton() {
   return (
     <>
       <button
-        onClick={() => setOpen(true)}
+        onClick={openModal}
         style={{
           marginTop: 24, padding: '9px 20px',
           background: 'transparent', border: '1px solid #bd93f9',
@@ -94,38 +107,51 @@ export default function ContactButton() {
               >×</button>
             </div>
 
-            <form onSubmit={handleSubmit} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div>
-                <label style={{ color: '#6272a4', fontSize: 12, display: 'block', marginBottom: 4 }}>name</label>
-                <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Your name" style={input} required />
-              </div>
-              <div>
-                <label style={{ color: '#6272a4', fontSize: 12, display: 'block', marginBottom: 4 }}>email</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" style={input} required />
-              </div>
-              <div>
-                <label style={{ color: '#6272a4', fontSize: 12, display: 'block', marginBottom: 4 }}>message</label>
-                <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="What's on your mind?" rows={4} style={{ ...input, resize: 'vertical' }} required />
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                <button
-                  type="submit"
-                  disabled={status === 'sending' || status === 'sent'}
-                  style={{
-                    padding: '9px 20px', background: '#6272a4', border: 'none',
-                    color: '#f8f8f2', borderRadius: 5, fontFamily: 'inherit',
-                    fontSize: 13, cursor: status === 'sending' ? 'wait' : 'pointer',
-                    opacity: status === 'sending' ? 0.7 : 1,
-                  }}
-                >
-                  {status === 'sending' ? 'sending...' : status === 'sent' ? '✓ sent!' : '✉ send message'}
-                </button>
-                {status === 'error' && (
-                  <span style={{ color: '#ff5555', fontSize: 12 }}>failed to send. try again.</span>
-                )}
-              </div>
-            </form>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {!ready ? (
+                <>
+                  {[48, 48, 96].map((h, i) => (
+                    <div key={i}>
+                      <div style={{ ...skel, width: 40, height: 12, marginBottom: 6 }} />
+                      <div style={{ ...skel, width: '100%', height: h }} />
+                    </div>
+                  ))}
+                  <div style={{ ...skel, width: 130, height: 36, borderRadius: 5 }} />
+                </>
+              ) : (
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div>
+                    <label style={{ color: '#6272a4', fontSize: 12, display: 'block', marginBottom: 4 }}>name</label>
+                    <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Your name" style={input} required />
+                  </div>
+                  <div>
+                    <label style={{ color: '#6272a4', fontSize: 12, display: 'block', marginBottom: 4 }}>email</label>
+                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" style={input} required />
+                  </div>
+                  <div>
+                    <label style={{ color: '#6272a4', fontSize: 12, display: 'block', marginBottom: 4 }}>message</label>
+                    <textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="What's on your mind?" rows={4} style={{ ...input, resize: 'vertical' }} required />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                    <button
+                      type="submit"
+                      disabled={status === 'sending' || status === 'sent'}
+                      style={{
+                        padding: '9px 20px', background: '#6272a4', border: 'none',
+                        color: '#f8f8f2', borderRadius: 5, fontFamily: 'inherit',
+                        fontSize: 13, cursor: status === 'sending' ? 'wait' : 'pointer',
+                        opacity: status === 'sending' ? 0.7 : 1,
+                      }}
+                    >
+                      {status === 'sending' ? 'sending...' : status === 'sent' ? '✓ sent!' : '✉ send message'}
+                    </button>
+                    {status === 'error' && (
+                      <span style={{ color: '#ff5555', fontSize: 12 }}>failed to send. try again.</span>
+                    )}
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       )}
