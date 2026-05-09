@@ -15,7 +15,7 @@ export const initialState: DesktopState = {
     },
   ],
   topZIndex: 1,
-  activeTheme: 'dracula',
+  activeTheme: 'tokyo',
 };
 
 let windowCounter = 0;
