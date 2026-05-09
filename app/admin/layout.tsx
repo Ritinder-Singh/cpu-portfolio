@@ -11,6 +11,7 @@ const NAV = [
   { href: '/admin/testimonials', label: '💬 Testimonials' },
   { href: '/admin/availability', label: '🟢 Availability' },
   { href: '/admin/commands', label: '💻 Commands' },
+  { href: '/admin/wallpaper', label: '🖼 Wallpaper' },
   { href: '/admin/config', label: '⚙️ Config' },
 ];
 
