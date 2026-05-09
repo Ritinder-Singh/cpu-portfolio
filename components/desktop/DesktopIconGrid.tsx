@@ -43,6 +43,22 @@ export default function DesktopIconGrid() {
   };
 
   return (
+    <>
+      {/* Semi-transparent sidebar panel */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: 90,
+          bottom: 48, // above taskbar
+          background: theme.bgDark,
+          backdropFilter: 'blur(16px)',
+          borderRight: `1px solid ${theme.border}`,
+          zIndex: 9,
+          pointerEvents: 'none',
+        }}
+      />
     <div
       style={{
         position: 'fixed',
@@ -100,5 +116,6 @@ export default function DesktopIconGrid() {
         </div>
       ))}
     </div>
+    </>
   );
 }

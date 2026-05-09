@@ -16,18 +16,13 @@ export default function DesktopIcon({ icon, label, onDoubleClick, theme }: Deskt
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setSelected(true);
-  };
-
-  const handleDoubleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
     onDoubleClick();
-    setSelected(false);
+    setTimeout(() => setSelected(false), 150);
   };
 
   return (
     <div
       onClick={handleClick}
-      onDoubleClick={handleDoubleClick}
       style={{
         display: 'flex',
         flexDirection: 'column',
