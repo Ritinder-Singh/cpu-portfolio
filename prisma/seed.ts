@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -40,6 +41,7 @@ async function main() {
         'Writing a blog about backend engineering patterns',
       ]),
     },
+    { key: 'wallpaper', value: 'linux' },
     { key: 'nowUpdated', value: 'March 2025' },
     {
       key: 'availability',
