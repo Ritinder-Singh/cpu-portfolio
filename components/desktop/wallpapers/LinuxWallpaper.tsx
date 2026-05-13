@@ -183,7 +183,7 @@ function drawHtop(ctx: CanvasRenderingContext2D, z: Zone, theme: Theme) {
   border(ctx, z, theme.accent);
   label(ctx, z, 'htop — system monitor', theme.accent);
 
-  let y = z.y + 24;
+  let y = z.y + 38;
   const lineH = 20;
   const lx = z.x + 8;
 
