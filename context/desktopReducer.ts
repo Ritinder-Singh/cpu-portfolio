@@ -11,10 +11,10 @@ export const initialState: DesktopState = {
       isMaximized: false,
       position: { x: 80, y: 60 },
       size: { width: 700, height: 500 },
-      zIndex: 1,
+      zIndex: 100,
     },
   ],
-  topZIndex: 1,
+  topZIndex: 100,
   activeTheme: 'tokyo',
 };
 
