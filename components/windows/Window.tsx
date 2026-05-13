@@ -131,6 +131,7 @@ export default function Window({ windowState, theme, children }: WindowProps) {
       onMouseDown={() => focusWindow(id)}
       style={{
         ...computedStyle,
+        pointerEvents: 'auto',
         display: 'flex',
         flexDirection: 'column',
         borderRadius: isMaximized ? 0 : 8,

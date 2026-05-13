@@ -38,9 +38,7 @@ export default function Desktop() {
       <Wallpaper theme={theme} wallpaper={wallpaper} />
       <DesktopIconGrid />
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 20 }}>
-        <div style={{ pointerEvents: 'auto', width: '100%', height: '100%' }}>
-          <WindowManager />
-        </div>
+        <WindowManager />
       </div>
       <Taskbar />
     </div>
