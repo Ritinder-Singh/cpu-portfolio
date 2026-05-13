@@ -26,6 +26,7 @@ export default function TitleBar({
   return (
     <div
       onMouseDown={onMouseDown}
+      onDoubleClick={onMaximize}
       style={{
         height: 36,
         backgroundColor: theme.accent,
@@ -39,7 +40,10 @@ export default function TitleBar({
       }}
     >
       {/* Traffic lights */}
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', zIndex: 1 }}>
+      <div
+        style={{ display: 'flex', gap: 8, alignItems: 'center', zIndex: 1 }}
+        onDoubleClick={e => e.stopPropagation()}
+      >
         <button
           onClick={e => { e.stopPropagation(); onClose(); }}
           onMouseDown={e => e.stopPropagation()}

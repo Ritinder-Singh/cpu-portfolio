@@ -15,7 +15,7 @@ interface TerminalOutputProps {
 }
 
 function linkify(text: string, color: string): React.ReactNode[] {
-  const urlPattern = /(https?:\/\/[^\s]+|github\.com\/[^\s]+|linkedin\.com\/[^\s]+)/g;
+  const urlPattern = /(https?:\/\/[^\s]+|(?:www\.)?github\.com\/[^\s]+|(?:www\.)?linkedin\.com\/[^\s]+)/g;
   const parts = text.split(urlPattern);
   return parts.map((part, i) => {
     if (urlPattern.test(part)) {

@@ -29,7 +29,6 @@ export default function ContactWindow({ theme }: ContactWindowProps) {
   const socialLinks = [
     ...(github ? [{ label: 'GitHub', value: github.replace('https://', ''), href: github, icon: '⌥', desc: 'See my code and projects' }] : []),
     ...(linkedin ? [{ label: 'LinkedIn', value: linkedin.replace('https://', ''), href: linkedin, icon: '🔗', desc: 'Professional network' }] : []),
-    ...(contactEmail ? [{ label: 'Email', value: contactEmail, href: `mailto:${contactEmail}`, icon: '✉', desc: 'Direct message' }] : []),
     ...(twitter ? [{ label: 'Twitter', value: twitter.replace('https://twitter.com/', '@'), href: twitter, icon: '🐦', desc: 'Dev thoughts & updates' }] : []),
   ];
 
